@@ -30,7 +30,7 @@ namespace Application.Query.Handlers
 
                 _logger.LogInformation($"Transferência {request.TransactionId} com status {status}");
 
-                return Response<StatusResponse>.Ok(new StatusResponse(status));
+                return Response<StatusResponse>.Ok(new StatusResponse(status, string.Empty));
             }
             catch(Exception ex)
             {

@@ -23,5 +23,8 @@ namespace Infra.Data.Dtos
 
         [BsonElement("status")]
         public string Status { get; set; }
+
+        [BsonElement("errorMessage")]
+        public string ErrorMessage { get; set; }
     }
 }

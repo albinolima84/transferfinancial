@@ -9,6 +9,7 @@ namespace Domain.Models
         public string AccountDestination { get; }
         public decimal Value { get; }
         public StatusEnum Status { get; }
+        public string ErrorMessage { get; }
 
         public TransferFinancial(string transactionId, string accountOrigin, string accountDestination, decimal value, StatusEnum status)
         {
@@ -17,6 +18,11 @@ namespace Domain.Models
             AccountDestination = accountDestination;
             Value = value;
             Status = status;
+        }
+
+        public TransferFinancial(string transactionId, string accountOrigin, string accountDestination, decimal value, StatusEnum status, string errorMessage) : this (transactionId, accountOrigin, accountDestination, value, status)
+        {
+            ErrorMessage = errorMessage;
         }
     }
 }

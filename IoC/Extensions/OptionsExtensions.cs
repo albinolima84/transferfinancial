@@ -15,6 +15,11 @@ namespace IoC.Extensions
                 option.Collection = configuration.GetSection("MongoOptions:Collection").Value;
             });
 
+            services.Configure<AccountOptions>(option =>
+            {
+                option.UrlAccount = configuration.GetSection("AccountOptions:urlAccount").Value;
+            });
+
             return services;
         }
     }

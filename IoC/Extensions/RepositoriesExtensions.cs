@@ -2,6 +2,7 @@
 using Infra.Data.Connection;
 using Infra.Data.Repositories;
 using Microsoft.Extensions.DependencyInjection;
+using RestSharp;
 
 namespace IoC.Extensions
 {
@@ -11,6 +12,8 @@ namespace IoC.Extensions
         {
             services.AddSingleton<IConnect, Connect>();
             services.AddSingleton<ITransferRepository, TransferRepository>();
+            services.AddSingleton<IAccountRepository, AccountRepository>();
+            services.AddSingleton<IRestClient, RestClient>();
 
             return services;
         }

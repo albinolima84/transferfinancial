@@ -12,7 +12,8 @@ namespace Infra.Data.Extensions
                 AccountOrigin = transferFinancial.AccountOrigin,
                 AccountDestination = transferFinancial.AccountDestination,
                 Value = transferFinancial.Value,
-                Status = transferFinancial.Status.ToString()
+                Status = transferFinancial.Status.ToString(),
+                ErrorMessage = transferFinancial .ErrorMessage
             };
     }
 }
