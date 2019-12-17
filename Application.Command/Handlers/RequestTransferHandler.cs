@@ -17,14 +17,14 @@ using Newtonsoft.Json;
 
 namespace Application.Command.Handlers
 {
-    public class TransferHandler : IRequestHandler<TransferCommand, Response<TransferResponse>>
+    public class RequestTransferHandler : IRequestHandler<RequestTransferCommand, Response<RequestTransferResponse>>
     {
         private readonly ITransferRepository _transferRepository;
         private readonly IQueueClient _queueClient;
-        private readonly ILogger<TransferHandler> _logger;
+        private readonly ILogger<RequestTransferHandler> _logger;
         private readonly MessagingConfigurationOptions _messagingConfiguration;
 
-        public TransferHandler(ITransferRepository transferRepository, ILogger<TransferHandler> logger, IOptions<MessagingConfigurationOptions> messagingConfiguration)
+        public RequestTransferHandler(ITransferRepository transferRepository, ILogger<RequestTransferHandler> logger, IOptions<MessagingConfigurationOptions> messagingConfiguration)
         {
             _transferRepository = transferRepository;
             _logger = logger;
@@ -34,20 +34,12 @@ namespace Application.Command.Handlers
             _queueClient = new QueueClient(connectionString);
         }
 
-        public async Task<Response<TransferResponse>> Handle(TransferCommand request, CancellationToken cancellationToken)
+        public async Task<Response<RequestTransferResponse>> Handle(RequestTransferCommand request, CancellationToken cancellationToken)
         {
             try
             {
                 _logger.LogInformation($"Inicia transferência da conta {request.AccountOrigin} para conta {request.AccountDestination} no valor de {request.Value}");
                 var statusTransfer = StatusEnum.InQueue;
-
-                //var accountRequest = _accountRepository.VerifyAccount(request.AccountOrigin);
-                //if(accountRequest.StatusCode == HttpStatusCode.NotFound)
-                //{
-                //    _logger.LogWarning($"Conta {request.AccountOrigin} não encontrada.");
-                //    errorMessage = "Invalid account number";
-                //    statusTransfer = StatusEnum.Error;
-                //}
 
                 var newTransactionId = Guid.NewGuid().ToString();
 
@@ -57,7 +49,7 @@ namespace Application.Command.Handlers
 
                 await SendMessagesAsync(transfer);
 
-                return Response<TransferResponse>.Ok(new TransferResponse(transactionId));
+                return Response<RequestTransferResponse>.Ok(new RequestTransferResponse(transactionId));
             }
             catch(Exception ex)
             {

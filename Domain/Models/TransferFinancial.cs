@@ -8,8 +8,8 @@ namespace Domain.Models
         public string AccountOrigin { get; }
         public string AccountDestination { get; }
         public decimal Value { get; }
-        public StatusEnum Status { get; }
-        public string ErrorMessage { get; }
+        public StatusEnum Status { get; private set; }
+        public string ErrorMessage { get; private set; }
 
         public TransferFinancial(string transactionId, string accountOrigin, string accountDestination, decimal value, StatusEnum status)
         {
@@ -23,6 +23,16 @@ namespace Domain.Models
         public TransferFinancial(string transactionId, string accountOrigin, string accountDestination, decimal value, StatusEnum status, string errorMessage) : this (transactionId, accountOrigin, accountDestination, value, status)
         {
             ErrorMessage = errorMessage;
+        }
+
+        public void SetNewStatus(StatusEnum newStatus)
+        {
+            Status = newStatus;
+        }
+
+        public void SetErrorMessage(string messageError)
+        {
+            ErrorMessage = messageError;
         }
     }
 }

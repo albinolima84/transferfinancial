@@ -38,17 +38,17 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(TransferResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(RequestTransferResponse), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(void), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> Post([FromBody] TransferDto request)
+        public async Task<IActionResult> Post([FromBody] RequestTransferDto request)
         {
             if(request is null)
             {
                 return BadRequest("Requisição inválida.");
             }
 
-            var command = TransferCommand.Create(request.AccountOrigin, request.AccountDestination, request.Value);
+            var command = RequestTransferCommand.Create(request.AccountOrigin, request.AccountDestination, request.Value);
             if(command.IsFailure)
             {
                 return BadRequest(command.Messages);

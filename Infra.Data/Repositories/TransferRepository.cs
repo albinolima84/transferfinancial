@@ -55,5 +55,14 @@ namespace Infra.Data.Repositories
 
             return transferDto.TransactionId.ToString();
         }
+
+        public async Task UpdateStatus(TransferFinancial transferFinancial)
+        {
+            var transferDto = transferFinancial.ToDto();
+
+            var filter = Builders<TransferDto>.Filter.Eq("transactionId", transferDto.TransactionId);
+
+            await _mongoCollection.ReplaceOneAsync(filter, transferDto);
+        }
     }
 }

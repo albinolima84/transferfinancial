@@ -8,5 +8,7 @@ namespace Domain.Interfaces
         Task<string> Transfer(TransferFinancial transferFinancial);
 
         Task<string> GetTransfer(string transactionId);
+
+        Task UpdateStatus(TransferFinancial transferFinancial);
     }
 }

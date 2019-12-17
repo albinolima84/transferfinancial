@@ -1,10 +1,10 @@
 ﻿namespace Application.Command.Responses
 {
-    public class TransferResponse
+    public class RequestTransferResponse
     {
         public string TransactionId { get; }
 
-        public TransferResponse(string transactionId)
+        public RequestTransferResponse(string transactionId)
         {
             TransactionId = transactionId;
         }
