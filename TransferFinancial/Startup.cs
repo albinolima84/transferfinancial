@@ -34,6 +34,7 @@ namespace WebApplication1
                 .RegisterHandlers()
                 .RegisterOptions(Configuration)
                 .RegisterRepositories()
+                .AddRabbit(Configuration)
                 .AddMvc()
                 .AddJsonOptions(options => options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore);
         }
