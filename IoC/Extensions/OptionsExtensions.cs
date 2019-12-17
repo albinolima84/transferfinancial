@@ -22,8 +22,10 @@ namespace IoC.Extensions
 
             services.Configure<MessagingConfigurationOptions>(option =>
             {
-                option.ConnectionString = configuration.GetSection("MessagingConfigurationOptions:ConnectionString").Value;
+                option.EndPoint = configuration.GetSection("MessagingConfigurationOptions:ConnectionString").Value;
                 option.Queue = configuration.GetSection("MessagingConfigurationOptions:Queue").Value;
+                option.AccessKey = configuration.GetSection("MessagingConfigurationOptions:AccessKey").Value;
+                option.AccessKeyName = configuration.GetSection("MessagingConfigurationOptions:AccessKeyName").Value;
             });
 
             return services;

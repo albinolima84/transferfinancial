@@ -29,9 +29,8 @@ namespace Application.Command.Handlers
             _transferRepository = transferRepository;
             _logger = logger;
             _messagingConfiguration = messagingConfiguration.Value;
-            var connectionString = new ServiceBusConnectionStringBuilder("https://acesso.servicebus.windows.net/", "transferfinancial", "RootManageSharedAccessKey", "RLAspLQKYCV2sUaW/8Ylp+vt+rvpNNcbfnmdcXlvoDs=");
-            //new QueueClient(ServiceBusConnectionStringBuilder)
-            //_queueClient = new QueueClient(_messagingConfiguration.ConnectionString, _messagingConfiguration.Queue);
+
+            var connectionString = new ServiceBusConnectionStringBuilder(_messagingConfiguration.EndPoint, _messagingConfiguration.Queue, _messagingConfiguration.AccessKeyName, _messagingConfiguration.AccessKey);
             _queueClient = new QueueClient(connectionString);
         }
 
@@ -74,9 +73,11 @@ namespace Application.Command.Handlers
                 var messageBody = JsonConvert.SerializeObject(transfer);
                 var message = new Message(Encoding.UTF8.GetBytes(messageBody));
 
-                _logger.LogInformation($"Enviando mensagem: {messageBody}");
+                _logger.LogInformation($"Enviando transferência para fila: {messageBody}");
 
                 await _queueClient.SendAsync(message);
+
+                _logger.LogInformation($"Transferência {transfer.TransactionId} enviada para fila com sucesso");
             }
             catch (Exception exception)
             {
