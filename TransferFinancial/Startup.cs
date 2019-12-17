@@ -31,10 +31,9 @@ namespace WebApplication1
             services
                 .AddSwagger()
                 .AddLogging()
-                .RegisterHandlers()
                 .RegisterOptions(Configuration)
+                .RegisterHandlers()
                 .RegisterRepositories()
-                .AddRabbit(Configuration)
                 .AddMvc()
                 .AddJsonOptions(options => options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore);
         }

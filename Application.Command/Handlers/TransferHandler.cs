@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Command.Commands;
@@ -9,24 +10,29 @@ using Domain.Enums;
 using Domain.Interfaces;
 using Domain.Models;
 using MediatR;
+using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace Application.Command.Handlers
 {
     public class TransferHandler : IRequestHandler<TransferCommand, Response<TransferResponse>>
     {
         private readonly ITransferRepository _transferRepository;
-        private readonly IRabbitManager _manager;
+        private readonly IQueueClient _queueClient;
         private readonly ILogger<TransferHandler> _logger;
         private readonly MessagingConfigurationOptions _messagingConfiguration;
 
-        public TransferHandler(ITransferRepository transferRepository, ILogger<TransferHandler> logger, IRabbitManager manager, IOptions<MessagingConfigurationOptions> messagingConfiguration)
+        public TransferHandler(ITransferRepository transferRepository, ILogger<TransferHandler> logger, IOptions<MessagingConfigurationOptions> messagingConfiguration)
         {
             _transferRepository = transferRepository;
-            _manager = manager;
             _logger = logger;
             _messagingConfiguration = messagingConfiguration.Value;
+            var connectionString = new ServiceBusConnectionStringBuilder("https://acesso.servicebus.windows.net/", "transferfinancial", "RootManageSharedAccessKey", "RLAspLQKYCV2sUaW/8Ylp+vt+rvpNNcbfnmdcXlvoDs=");
+            //new QueueClient(ServiceBusConnectionStringBuilder)
+            //_queueClient = new QueueClient(_messagingConfiguration.ConnectionString, _messagingConfiguration.Queue);
+            _queueClient = new QueueClient(connectionString);
         }
 
         public async Task<Response<TransferResponse>> Handle(TransferCommand request, CancellationToken cancellationToken)
@@ -50,7 +56,7 @@ namespace Application.Command.Handlers
 
                 var transactionId = await _transferRepository.Transfer(transfer);
 
-                _manager.Publish<TransferFinancial>(transfer, _messagingConfiguration.Exchange, _messagingConfiguration.ExchangeType, _messagingConfiguration.RoutingKey);
+                await SendMessagesAsync(transfer);
 
                 return Response<TransferResponse>.Ok(new TransferResponse(transactionId));
             }
@@ -58,6 +64,23 @@ namespace Application.Command.Handlers
             {
                 _logger.LogError(ex, $"Erro ao efetuar transferência da conta {request.AccountOrigin} para conta {request.AccountDestination} no valor de {request.Value}");
                 throw;
+            }
+        }
+
+        private async Task SendMessagesAsync(TransferFinancial transfer)
+        {
+            try
+            {
+                var messageBody = JsonConvert.SerializeObject(transfer);
+                var message = new Message(Encoding.UTF8.GetBytes(messageBody));
+
+                _logger.LogInformation($"Enviando mensagem: {messageBody}");
+
+                await _queueClient.SendAsync(message);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine($"{DateTime.Now} :: Exception: {exception.Message}");
             }
         }
     }
