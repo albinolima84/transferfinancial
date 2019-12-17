@@ -58,11 +58,11 @@ namespace Infra.Data.Repositories
 
         public async Task UpdateStatus(TransferFinancial transferFinancial)
         {
-            var transferDto = transferFinancial.ToDto();
+            var filter = Builders<TransferDto>.Filter.Eq("transactionId", transferFinancial.TransactionId);
 
-            var filter = Builders<TransferDto>.Filter.Eq("transactionId", transferDto.TransactionId);
+            var update = Builders<TransferDto>.Update.Set("status", transferFinancial.Status);
 
-            await _mongoCollection.ReplaceOneAsync(filter, transferDto);
+            await _mongoCollection.UpdateOneAsync(filter, update);
         }
     }
 }
