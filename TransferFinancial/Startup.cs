@@ -35,7 +35,7 @@ namespace WebApplication1
                 .RegisterOptions(Configuration)
                 .RegisterHandlers()
                 .RegisterRepositories()
-                //.AddHostedService<QueueConsumer>()
+                .AddHostedService<QueueConsumer>()
                 .AddMvc()
                 .AddJsonOptions(options => options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore);
         }
