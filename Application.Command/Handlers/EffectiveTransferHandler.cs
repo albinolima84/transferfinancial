@@ -69,8 +69,8 @@ namespace Application.Command.Handlers
             }
             else if (accountRequest.StatusCode == HttpStatusCode.NotFound)
             {
-                _logger.LogWarning($"Conta {transfer.AccountOrigin} não encontrada.");
-                errorMessage = "Invalid account number";
+                _logger.LogWarning($"Conta origem {transfer.AccountOrigin} não encontrada.");
+                errorMessage = "Invalid origin account number";
                 statusTransfer = StatusEnum.Error;
             }
             else if (accountRequest.StatusCode == HttpStatusCode.OK)
@@ -78,7 +78,7 @@ namespace Application.Command.Handlers
                 var account = JsonConvert.DeserializeObject<AccountDto>(accountRequest.Content);
                 if (account.Balance < transfer.Value)
                 {
-                    _logger.LogWarning($"Conta {transfer.AccountOrigin} com saldo insuficiente: {account.Balance}.");
+                    _logger.LogWarning($"Conta origem {transfer.AccountOrigin} com saldo insuficiente: {account.Balance}.");
                     errorMessage = "Insufficient balance";
                     statusTransfer = StatusEnum.Error;
                 }
@@ -88,7 +88,7 @@ namespace Application.Command.Handlers
                     if (accountDestinationRequest.StatusCode == HttpStatusCode.NotFound)
                     {
                         _logger.LogWarning($"Conta {transfer.AccountDestination} não encontrada.");
-                        errorMessage = "Invalid account number";
+                        errorMessage = "Invalid destination account number";
                         statusTransfer = StatusEnum.Error;
                     }
                 }
