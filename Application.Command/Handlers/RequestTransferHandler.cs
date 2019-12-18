@@ -38,7 +38,7 @@ namespace Application.Command.Handlers
         {
             try
             {
-                _logger.LogInformation($"Inicia transferência da conta {request.AccountOrigin} para conta {request.AccountDestination} no valor de {request.Value}");
+                _logger.LogInformation($"Inicia requisição de transferência da conta {request.AccountOrigin} para conta {request.AccountDestination} no valor de {request.Value}");
                 var statusTransfer = StatusEnum.InQueue;
 
                 var newTransactionId = Guid.NewGuid().ToString();
@@ -47,13 +47,15 @@ namespace Application.Command.Handlers
 
                 var transactionId = await _transferRepository.Transfer(transfer);
 
+                _logger.LogInformation($"Solicitação de transferência {transactionId} armazenada com sucesso.");
+
                 await SendMessagesAsync(transfer);
 
                 return Response<RequestTransferResponse>.Ok(new RequestTransferResponse(transactionId));
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex, $"Erro ao efetuar transferência da conta {request.AccountOrigin} para conta {request.AccountDestination} no valor de {request.Value}");
+                _logger.LogError(ex, $"Erro ao efetuar solicitação de transferência da conta {request.AccountOrigin} para conta {request.AccountDestination} no valor de {request.Value}");
                 throw;
             }
         }
@@ -71,9 +73,10 @@ namespace Application.Command.Handlers
 
                 _logger.LogInformation($"Transferência {transfer.TransactionId} enviada para fila com sucesso");
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                Console.WriteLine($"{DateTime.Now} :: Exception: {exception.Message}");
+                _logger.LogError(ex, $"Erro ao enviar transação {transfer.TransactionId} para fila :: Exception: {ex.Message}");
+                throw;
             }
         }
     }

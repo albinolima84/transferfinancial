@@ -25,12 +25,22 @@ namespace Application.Query.Handlers
         {
             try
             {
-                _logger.LogInformation($"Iniciando pesquisa de transferência id {request.TransactionId}");
-                var status = await _transferRepository.GetTransfer(request.TransactionId);
+                StatusResponse response = null;
 
-                _logger.LogInformation($"Transferência {request.TransactionId} com status {status}");
+                _logger.LogInformation($"Iniciando pesquisa de transferência id {request.TransactionId}.");
+                var transfer = await _transferRepository.GetTransfer(request.TransactionId);
 
-                return Response<StatusResponse>.Ok(new StatusResponse(status, string.Empty));
+                if (transfer != null)
+                {
+                    _logger.LogInformation($"Transferência {request.TransactionId} com status {transfer.Status}.");
+                    response = new StatusResponse(transfer.Status.ToString(), transfer.ErrorMessage);
+                }
+                else
+                {
+                    _logger.LogWarning($"Nenhuma transferência com transactionId {request.TransactionId} foi encontrada.");
+                }
+
+                return Response<StatusResponse>.Ok(response);
             }
             catch(Exception ex)
             {

@@ -7,7 +7,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -48,7 +47,6 @@ namespace Api.BackgroundServices
         private Task ExceptionReceivedHandler(ExceptionReceivedEventArgs arg)
         {
             _logger.LogError(arg.Exception, "Erro ao processar mensagem.");
-
 
             return Task.CompletedTask;
         }

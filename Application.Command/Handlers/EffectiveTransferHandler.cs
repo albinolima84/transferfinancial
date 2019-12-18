@@ -1,9 +1,11 @@
 ﻿using Application.Command.Commands;
+using Application.Command.Dtos;
 using Domain.Enums;
 using Domain.Interfaces;
 using Domain.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Net;
 using System.Threading;
@@ -26,41 +28,72 @@ namespace Application.Command.Handlers
 
         public async Task<Unit> Handle(EffectiveTransferCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"Iniciando transferência de transação {request.TransactionId}");
+            try
+            {
+                _logger.LogInformation($"Iniciando transferência de transação {request.TransactionId}");
 
-            var transfer = new TransferFinancial(request.TransactionId, request.AccountOrigin, request.AccountDestination, request.Value, StatusEnum.Processing);
+                var transfer = new TransferFinancial(request.TransactionId, request.AccountOrigin, request.AccountDestination, request.Value, StatusEnum.Processing);
 
-            _logger.LogInformation($"Atualizando o status da transação {request.TransactionId} para {transfer.Status}");
+                _logger.LogInformation($"Atualizando o status da transação {request.TransactionId} para {transfer.Status}");
 
-            await _transferRepository.UpdateStatus(transfer);
+                await _transferRepository.UpdateStatus(transfer);
 
-            _logger.LogInformation($"Efetivando a transferência da transação {transfer.TransactionId}");
+                _logger.LogInformation($"Efetivando a transferência da transação {transfer.TransactionId}");
 
-            EffectiveTransferCommand(transfer);
+                EffectiveTransfer(transfer);
 
-            return Unit.Value;
+                return Unit.Value;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, $"Erro ao efetivar a transferência {request.TransactionId}.");
+                throw;
+            }
         }
 
-        private void EffectiveTransferCommand(TransferFinancial transfer)
+        private void EffectiveTransfer(TransferFinancial transfer)
         {
             string errorMessage = string.Empty;
             var statusTransfer = StatusEnum.Confirmed;
 
             var accountRequest = _accountRepository.VerifyAccount(transfer.AccountOrigin);
-            if(accountRequest.StatusCode == HttpStatusCode.NotFound)
+            
+            if (accountRequest.StatusCode == HttpStatusCode.InternalServerError || accountRequest.StatusCode == HttpStatusCode.ServiceUnavailable)
+            {
+                _logger.LogInformation("Serviço de contas indisponível");
+
+                transfer.SetNewStatus(StatusEnum.InQueue);
+                _transferRepository.UpdateStatus(transfer);
+
+                throw new Exception("Serviço de contas indisponível");
+            }
+            else if (accountRequest.StatusCode == HttpStatusCode.NotFound)
             {
                 _logger.LogWarning($"Conta {transfer.AccountOrigin} não encontrada.");
                 errorMessage = "Invalid account number";
                 statusTransfer = StatusEnum.Error;
             }
-
-            //if (accountRequest.StatusCode == HttpStatusCode.OK)
-            //{
-            //    _logger.LogWarning($"Conta {transfer.AccountOrigin} não encontrada.");
-            //    errorMessage = "Invalid account number";
-            //    statusTransfer = StatusEnum.Error;
-            //}
-
+            else if (accountRequest.StatusCode == HttpStatusCode.OK)
+            {
+                var account = JsonConvert.DeserializeObject<AccountDto>(accountRequest.Content);
+                if (account.Balance < transfer.Value)
+                {
+                    _logger.LogWarning($"Conta {transfer.AccountOrigin} com saldo insuficiente: {account.Balance}.");
+                    errorMessage = "Insufficient balance";
+                    statusTransfer = StatusEnum.Error;
+                }
+                else
+                {
+                    var accountDestinationRequest = _accountRepository.VerifyAccount(transfer.AccountDestination);
+                    if (accountDestinationRequest.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        _logger.LogWarning($"Conta {transfer.AccountDestination} não encontrada.");
+                        errorMessage = "Invalid account number";
+                        statusTransfer = StatusEnum.Error;
+                    }
+                }
+            }
+            
             transfer.SetErrorMessage(errorMessage);
             transfer.SetNewStatus(statusTransfer);
 
