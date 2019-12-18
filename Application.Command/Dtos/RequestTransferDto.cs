@@ -1,6 +1,6 @@
 ﻿namespace Application.Command.Dtos
 {
-    public class TransferDto
+    public class RequestTransferDto
     {
         public string AccountOrigin { get; set; }
         public string AccountDestination { get; set; }

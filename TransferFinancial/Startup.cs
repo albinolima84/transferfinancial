@@ -1,4 +1,5 @@
-﻿using IoC.Extensions;
+﻿using Api.BackgroundServices;
+using IoC.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -31,10 +32,10 @@ namespace WebApplication1
             services
                 .AddSwagger()
                 .AddLogging()
-                .RegisterHandlers()
                 .RegisterOptions(Configuration)
+                .RegisterHandlers()
                 .RegisterRepositories()
-                .AddRabbit(Configuration)
+                .AddHostedService<QueueConsumer>()
                 .AddMvc()
                 .AddJsonOptions(options => options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore);
         }

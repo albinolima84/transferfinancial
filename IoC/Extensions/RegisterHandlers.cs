@@ -10,7 +10,7 @@ namespace IoC.Extensions
         public static IServiceCollection RegisterHandlers(this IServiceCollection services)
         {
             services.AddMediatR(typeof(StatusHandler).Assembly);
-            services.AddMediatR(typeof(TransferHandler).Assembly);
+            services.AddMediatR(typeof(RequestTransferHandler).Assembly);
 
             return services;
         }

@@ -20,20 +20,12 @@ namespace IoC.Extensions
                 option.UrlAccount = configuration.GetSection("AccountOptions:urlAccount").Value;
             });
 
-            services.Configure<RabbitOptions>(option =>
-            {
-                option.UserName = configuration.GetSection("RabbitOptions:UserName").Value;
-                option.Password = configuration.GetSection("RabbitOptions:Password").Value;
-                option.HostName = configuration.GetSection("RabbitOptions:HostName").Value;
-                option.VHost = configuration.GetSection("RabbitOptions:VHost").Value;
-                option.Port = int.Parse(configuration.GetSection("RabbitOptions:Port").Value);
-            });
-
             services.Configure<MessagingConfigurationOptions>(option =>
             {
-                option.Exchange = configuration.GetSection("MessagingConfigurationOptions:Exchange").Value;
-                option.RoutingKey = configuration.GetSection("MessagingConfigurationOptions:RoutingKey").Value;
-                option.ExchangeType = configuration.GetSection("MessagingConfigurationOptions:Queue").Value;
+                option.EndPoint = configuration.GetSection("MessagingConfigurationOptions:ConnectionString").Value;
+                option.Queue = configuration.GetSection("MessagingConfigurationOptions:Queue").Value;
+                option.AccessKey = configuration.GetSection("MessagingConfigurationOptions:AccessKey").Value;
+                option.AccessKeyName = configuration.GetSection("MessagingConfigurationOptions:AccessKeyName").Value;
             });
 
             return services;
