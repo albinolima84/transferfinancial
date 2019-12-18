@@ -47,7 +47,7 @@ namespace WebApplication1
                 app.UseDeveloperExceptionPage();
             }
 
-            loggerFactory.AddLog4Net($"log4net.{env.EnvironmentName}.config");
+            loggerFactory.AddLog4Net("log4net.config");
 
             app
                 .ConfigureSwagger()
