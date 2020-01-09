@@ -17,7 +17,8 @@ namespace IoC.Extensions
 
             services.Configure<AccountOptions>(option =>
             {
-                option.UrlAccount = configuration.GetSection("AccountOptions:urlAccount").Value;
+                option.UrlVerifyAccount = configuration.GetSection("AccountOptions:urlVerifyAccount").Value;
+                option.UrlTransfer = configuration.GetSection("AccountOptions:urlTransfer").Value;
             });
 
             services.Configure<MessagingConfigurationOptions>(option =>

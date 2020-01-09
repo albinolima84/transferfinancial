@@ -2,6 +2,8 @@
 {
     public class AccountOptions
     {
-        public string UrlAccount { get; set; }
+        public string UrlVerifyAccount { get; set; }
+
+        public string UrlTransfer { get; set; }
     }
 }

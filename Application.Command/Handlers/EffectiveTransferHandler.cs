@@ -93,7 +93,20 @@ namespace Application.Command.Handlers
                     }
                 }
             }
-            
+
+            if (string.IsNullOrEmpty(errorMessage))
+            {
+                _logger.LogInformation($"Efetuando o débito na conta {transfer.AccountOrigin} no valor de {transfer.Value}");
+
+                var bodyTransaction = new Transaction { AccountNumber = transfer.AccountOrigin, Value = transfer.Value, Type = "Debit"};
+                var transaction = _accountRepository.EffectiveTransfer(bodyTransaction);
+
+                _logger.LogInformation($"Efetuando o crédito na conta {transfer.AccountDestination} no valor de {transfer.Value}");
+
+                bodyTransaction = new Transaction { AccountNumber = transfer.AccountDestination, Value = transfer.Value, Type = "Credit" };
+                transaction = _accountRepository.EffectiveTransfer(bodyTransaction);
+            }
+
             transfer.SetErrorMessage(errorMessage);
             transfer.SetNewStatus(statusTransfer);
 
